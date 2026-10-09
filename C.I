@@ -1,6 +1,6 @@
 WindUI = loadstring(game:HttpGet("https://github.com/magnesiumv2/Administrator/blob/main/main.lua"))()
 
-Window = WindUI:CreateWindow({
+Window = WindUI:Window({
     Title = "Cyber Invasion",
     SubTitle = "V one",
     Icon = "Computer",
