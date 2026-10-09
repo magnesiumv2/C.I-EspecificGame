@@ -2,8 +2,8 @@ WindUI = loadstring(game:HttpGet("https://github.com"))()
 
 Window = WindUI:CreateWindow({
     Title = "Cyber Invasion",
-    SubTitle = "DoS Simulation & Network Control",
-    Icon = "lucide-activity",
+    SubTitle = "V one",
+    Icon = "Computer",
     Size = UDim2.new(0, 580, 0, 440),
     Transparent = true,
     Theme = "Dark",
