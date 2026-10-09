@@ -1,4 +1,4 @@
-WindUI = loadstring(game:HttpGet("https://github.com"))()
+WindUI = loadstring(game:HttpGet("https://github.com/magnesiumv2/Administrator/blob/main/main.lua"))()
 
 Window = WindUI:CreateWindow({
     Title = "Cyber Invasion",
