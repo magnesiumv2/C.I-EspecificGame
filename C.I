@@ -26,7 +26,7 @@ Tab:Input({
 })
 
 Tab:Button({
-   Name = "denial-of-service attack",
+   Title = "denial-of-service attack",
    Desc = "target: server",
    Callback = function()
 local player = game:GetService("Players").LocalPlayer
