@@ -38,8 +38,6 @@ Tab:Button({
                 end)
                 _G.DupeThread = nil
             end
-            
-            -- Avisa que foi cancelado (Opcional: se quiser remover esta notificação, basta apagar o bloco abaix
 
         -- Inicia o processo de duplicação
         local player = game:GetService("Players").LocalPlayer
