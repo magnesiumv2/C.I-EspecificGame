@@ -7,12 +7,12 @@ Window = WindUI:CreateWindow({
     Size = UDim2.new(0, 580, 0, 440),
     Transparent = true,
     Theme = "Dark",
-    BackgroundImage = "rbxassetid://14457936183",
+    BackgroundImage = "rbxassetid://1210928143",
     BackgroundTransparency = 0.85
 })
 
 local Tab = Window:Tab({
-    Title = "Commandos",
+    Title = "device damage",
     Icon = "terminal"
 })
 
