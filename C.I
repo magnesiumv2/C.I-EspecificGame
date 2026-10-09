@@ -265,3 +265,40 @@ Tab2:Button({
         end
     end
 })
+
+Tab2:Button({
+    Title = "acquire server ID",
+    Desc = "acquires the server ID",
+    Callback = function()
+        -- Copia o ID único do servidor atual direto para o Ctrl+V
+        if game.JobId and game.JobId ~= "" then
+            setclipboard(game.JobId)
+        end
+    end
+})
+
+Tab2:Input({
+    Title = "Write the server ID here to hack into.",
+    Desc = "hack server",
+    Placeholder = "Write the server ID here.",
+    Callback = function(Value)
+        _G.ServerJobID = Value
+    end
+})
+
+Tab2:Button({
+    Title = "invade the server",
+    Desc = "invade the server for id",
+    Callback = function()
+        if _G.ServerJobID and _G.ServerJobID ~= "" then
+            local TeleportService = game:GetService("TeleportService")
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+            
+            -- Teleporta direto para o ID da sala digitado na TextBox acima
+            pcall(function()
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, _G.ServerJobID, LocalPlayer)
+            end)
+        end
+    end
+})
