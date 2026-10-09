@@ -11,7 +11,10 @@ Window = WindUI:CreateWindow({
     BackgroundTransparency = 0.85
 })
 
-Tab = Window:CreateTab({ Title = "Buffer Flooder", Icon = "Computer" })
+local Tab = Window:Tab({
+    Title = "Commandos",
+    Icon = "terminal"
+})
 
 Tab:Input({
     Title = "Textbox to damaging a computer",
