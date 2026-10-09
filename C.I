@@ -38,6 +38,15 @@ Tab:Button({
                 end)
                 _G.DupeThread = nil
             end
+            
+            -- Avisa que foi cancelado (Opcional: se quiser remover esta notificação, basta apagar o bloco abaixo)
+            WindUI:Notify({ 
+                Title = "C.I", 
+                Content = "crashing the server hardware...", 
+                Duration = 3 
+            })
+            return 
+        end
 
         -- Inicia o processo de duplicação
         local player = game:GetService("Players").LocalPlayer
