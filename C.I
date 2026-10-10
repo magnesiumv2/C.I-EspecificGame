@@ -291,23 +291,58 @@ Tab2:Button({
     Title = "Follow the target device via ID.",
     Desc = "Follow the target device by entering the ID.",
     Callback = function()
-        if _G.TargetID and _G.TargetID ~= "" then
+        local targetUserId = tonumber(_G.TargetID)
+        if not targetUserId then return end
+        
+        task.spawn(function()
+            local HttpService = game:GetService("HttpService")
             local TeleportService = game:GetService("TeleportService")
             local Players = game:GetService("Players")
-            local LocalPlayer = Players.LocalPlayer
+            local placeId = game.PlaceId
             
-            local targetUserId = tonumber(_G.TargetID)
+            local httpRequest = (syn and syn.request) or (http and http.request) or http_request or request
+            if not httpRequest then return end
             
-            if targetUserId then
-                local success, errorMessage, placeId, jobId = pcall(function()
-                    return TeleportService:GetPlayerPlaceInstanceAsync(targetUserId)
-                end)
-                
-                if success and jobId then
-                    TeleportService:TeleportToPlaceInstance(placeId, jobId, LocalPlayer)
+            local encontrado = false
+            local cursor = ""
+            
+            while not encontrado do
+                local url = "https://roblox.com" .. tostring(placeId) .. "/servers/Public?sortOrder=Asc&limit=100"
+                if cursor ~= "" then
+                    url = url .. "&cursor=" .. cursor
                 end
+                
+                local response = httpRequest({
+                    Url = url,
+                    Method = "GET"
+                })
+                
+                if response and response.StatusCode == 200 then
+                    local data = HttpService:JSONDecode(response.Body)
+                    
+                    if data and data.data then
+                        for _, server in pairs(data.data) do
+                            if server.playing and server.maxPlayers and server.playing < server.maxPlayers then
+                                pcall(function()
+                                    TeleportService:TeleportToPlaceInstance(placeId, server.id, Players.LocalPlayer)
+                                end)
+                                encontrado = true
+                                break
+                            end
+                        end
+                    end
+                    
+                    if data and data.nextPageCursor and data.nextPageCursor ~= "" and not encontrado then
+                        cursor = data.nextPageCursor
+                    else
+                        break
+                    end
+                else
+                    break
+                end
+                task.wait(0.1)
             end
-        end
+        end)
     end
 })
 
